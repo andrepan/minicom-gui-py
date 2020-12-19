@@ -13,10 +13,11 @@ import PySimpleGUI as sg
 #          [sg.In('Last input')],
 #          [sg.OK()]]
 r1 = [sg.Output(size=(100, 25), key = "display", background_color= "black", text_color= "green", font=('宋体',15))]
-r2 = [sg.Checkbox("TS", tooltip = "if display the timestamp", key="ts", enable_events=True),
-     sg.B("Clear")]
+r2 = [sg.Checkbox("TS", tooltip = "weather display the timestamp", key="ts", enable_events=True),
+     sg.B("Clear"), sg.B("ToFile")]
 r3 = [sg.Button("Open", key = 'onoff'), sg.Combo([], size = (10, 5), key = "ports"), 
-     sg.Text("Baud"), sg.Input(), sg.B("Set Filter"), sg.Input(key = "filter")]
+     sg.Text("Baud"), sg.Input(default_text = "115200", key = "baud"), 
+     sg.B("Set Filter"), sg.Input(key = "filter")]
 
 
 layout = [r1, r2, r3] 
@@ -29,7 +30,8 @@ layout = [r1, r2, r3]
 
 if __name__ == '__main__':
     window = sg.Window('Test Layout', layout)
-    event, values = window.read()
+    #window['ports'].disabled = True
+
     while True: 
         event, values = window.read(timeout = 100) 
         if event == sg.WINDOW_CLOSED: 
@@ -37,6 +39,8 @@ if __name__ == '__main__':
             break
         elif event == sg.TIMEOUT_KEY:
             continue
+        elif event == "onoff":
+            window['ports'].update(disabled = True)
         
         print(event, values)
     window.close()

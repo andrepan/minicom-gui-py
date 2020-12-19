@@ -375,7 +375,7 @@ class Miniterm(object):
         # enter console->serial loop
         self.transmitter_thread = threading.Thread(target=self.writer, name='tx')
         self.transmitter_thread.daemon = True
-        self.transmitter_thread.start()
+        #self.transmitter_thread.start()
         self.console.setup()
 
     def stop(self):
@@ -976,14 +976,14 @@ def main(default_port=None, default_baudrate=9600, default_rts=None, default_dtr
     miniterm.set_rx_encoding(args.serial_port_encoding)
     miniterm.set_tx_encoding(args.serial_port_encoding)
 
-    if not args.quiet:
-        sys.stderr.write('--- Miniterm on {p.name}  {p.baudrate},{p.bytesize},{p.parity},{p.stopbits} ---\n'.format(
-            p=miniterm.serial))
-        sys.stderr.write('--- Quit: {} | Menu: {} | Help: {} followed by {} ---\n'.format(
-            key_description(miniterm.exit_character),
-            key_description(miniterm.menu_character),
-            key_description(miniterm.menu_character),
-            key_description('\x08')))
+    #if not args.quiet:
+        #sys.stderr.write('--- Miniterm on {p.name}  {p.baudrate},{p.bytesize},{p.parity},{p.stopbits} ---\n'.format(
+            #p=miniterm.serial))
+        #sys.stderr.write('--- Quit: {} | Menu: {} | Help: {} followed by {} ---\n'.format(
+            #key_description(miniterm.exit_character),
+            #key_description(miniterm.menu_character),
+            #key_description(miniterm.menu_character),
+            #key_description('\x08')))
 
     miniterm.start()
 
@@ -1027,12 +1027,19 @@ def open_port(com_port, br = 115200, par = "N"):
     
     return serial_instance
 
+def save_to_file(dat):
+    fn = dt.datetime.now().strftime("%Y-%m-%d-%H-%M-%S.txt")
+    with open(fn, "w") as f:
+        f.write(dat)
+    return fn
+
+
 window = None
 def my_main():
     global Filters
     com = None
     window = sg.Window('Compact 1-line window with column', layout)
-    event, values = window.read(timeout=100)
+    event, values = window.read(timeout=500)
     print("Hi , this is the first com demo")
     coms = get_ports_list()
     if len(coms) != 0:
@@ -1046,14 +1053,22 @@ def my_main():
             #open_port(values['ports'])
                 if values['ports'] != '':
                     com = main(default_port = values['ports'], default_baudrate=115200, w = window)
-                    com.ts = values['ts']
-                    window['onoff'].Update(text = "Close")
-
+                    if com != None:
+                        com.ts = values['ts']
+                        window['onoff'].Update(text = "Close")
+                        window['baud'].update(disabled = True)
+                        window['ports'].update(disabled = True)
             elif window['onoff'].GetText() == "Close":
                 com.stop()
                 com.close()
                 window['onoff'].Update(text = "Open")
+                window['baud'].update(disabled = False)
+                window['ports'].update(disabled = False)
+                com = None
             window.Refresh()
+        elif event == "ToFile":
+            fn = save_to_file(window["display"].Get())
+            sg.popup("saved to file:" + fn)
         elif event == sg.TIMEOUT_KEY:
             continue
         elif event == "Set Filter":
@@ -1068,7 +1083,6 @@ def my_main():
 
         #print(event, values)
             
-
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
