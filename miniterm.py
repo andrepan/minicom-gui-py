@@ -1028,7 +1028,7 @@ def open_port(com_port, br = 115200, par = "N"):
     return serial_instance
 
 def save_to_file(dat):
-    fn = dt.datetime.now().strftime("%Y-%m-%d-%H-%M-%S.txt")
+    fn = dt.datetime.now().strftime("%Y-%m-%d-%H-%M-%S.log")
     with open(fn, "w") as f:
         f.write(dat)
     return fn
